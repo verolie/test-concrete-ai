@@ -21,12 +21,11 @@ func registerServer(e *gin.Engine) {
 	//Acount Manager Service
 	e.GET("/user", usersHandler)
 	e.POST("/user", usersHandler)
-	e.GET("/user/:id", usersHandlerParam)
 
 	//Transaction
 	e.POST("/transaction/send", paymentProcess)
 	e.POST("/transaction/withdraw", withdrawProcess)
-	e.GET("/transaction/detail", detailTransactionParam)
+	e.GET("/transaction/detail", detailTransaction)
 	e.GET("/transaction/detail/:id", detailTransactionParam)
 }
 
@@ -41,15 +40,6 @@ func usersHandler(c *gin.Context) {
 	}
 }
 
-func usersHandlerParam(c *gin.Context) {
-	switch c.Request.Method {
-	case http.MethodGet:
-		handler.GetUsers(c)
-	default:
-		c.String(http.StatusMethodNotAllowed, "Method not allowed")
-	}
-}
-
 func paymentProcess(c *gin.Context) {
 	transaction.PostingPayment(c)
 }
@@ -58,6 +48,9 @@ func withdrawProcess(c *gin.Context) {
 	transaction.Withdraw(c)
 }
 
+func detailTransaction(c *gin.Context) {
+	transaction.GetDetailTransaction(c)
+}
 
 func detailTransactionParam(c *gin.Context) {
 	transaction.GetDetailTransactionParam(c)

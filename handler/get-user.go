@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Activities struct {
+type Users struct {
 	Activity_id int `gorm:"primary_key;auto_increment;not_null"`
 	Title       string
 	Email       string
