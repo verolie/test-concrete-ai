@@ -3,7 +3,6 @@ package server
 import (
 	"example/transaction/handler"
 	"example/transaction/transaction"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,9 +18,11 @@ func RunServer() {
 
 func registerServer(e *gin.Engine) {
 	//Acount Manager Service
-	e.GET("/user", usersHandler)
-	e.POST("/user", usersHandler)
-
+	e.POST("/user/login", getUser)
+	e.POST("/user/register", createUser)
+	e.POST("/user/account/detail/:id", getDetaiUserAccount)
+	e.POST("/user/payment/history/:id", getUserTrnxHist)
+	
 	//Transaction
 	e.POST("/transaction/send", paymentProcess)
 	e.POST("/transaction/withdraw", withdrawProcess)
@@ -29,23 +30,24 @@ func registerServer(e *gin.Engine) {
 	e.GET("/transaction/detail/:id", detailTransactionParam)
 }
 
-func usersHandler(c *gin.Context) {
-	switch c.Request.Method {
-	case http.MethodGet:
-		handler.GetUsers(c)
-	case http.MethodPost:
-		handler.CreateUser(c)
-	default:
-		 c.String(http.StatusMethodNotAllowed, "Method not allowed")
-	}
+func getUser(c *gin.Context) {
+	handler.GetUsers(c)
 }
-
+func createUser(c *gin.Context) {
+	handler.CreateUser(c)
+}
+func getDetaiUserAccount(c *gin.Context) {
+	handler.DetaiUserAccount(c)
+}
+func getUserTrnxHist(c *gin.Context) {
+	handler.UserTrnxHist(c)
+}
 func paymentProcess(c *gin.Context) {
 	transaction.PostingPayment(c)
 }
 
 func withdrawProcess(c *gin.Context) {
-	transaction.Withdraw(c)
+	transaction.WithdrawProcess(c)
 }
 
 func detailTransaction(c *gin.Context) {
