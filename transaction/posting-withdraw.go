@@ -38,16 +38,16 @@ func WithdrawProcess(c *gin.Context) {
 
 		//insert when payment success
     	_, err = client.TransactionDetail.CreateOne(
-        	db.TransactionDetail.TrxID.Set(payment.Trx_id),
-        	db.TransactionDetail.Timestamps.Set(time.Now()),
-        	db.TransactionDetail.ApvCode.Set(payment.Apv_code),
-        	db.TransactionDetail.TrxTyp.Set(payment.Trx_typ),
-        	db.TransactionDetail.Amt.Set(float64(payment.Amt)),
-        	db.TransactionDetail.Status.Set(payment.Status),
-        	db.TransactionDetail.Desc.Set(payment.Desc),
-        	db.TransactionDetail.LocAcct.Set(payment.Loc_acct),
-			// db.TransactionDetail.ReceiverPan.Set(""),
-			// db.TransactionDetail.SeceiverPan.Set(payment.Sender_account),
+        	db.TransactionDetail.TrxID.Equals(payment.Trx_id),
+			db.TransactionDetail.Timestamps.Equals(time.Now()),
+			db.TransactionDetail.ReceiverPan.Equals(""),
+			db.TransactionDetail.SenderPan.Equals(payment.Sender_pan),
+			db.TransactionDetail.ApvCode.Equals(payment.Apv_code),
+			db.TransactionDetail.TrxTyp.Equals(payment.Trx_typ),
+			db.TransactionDetail.Amt.Decrement(float64(payment.Amt)),
+			db.TransactionDetail.Status.Equals(payment.Status),
+			db.TransactionDetail.Desc.Equals(payment.Desc),
+			db.TransactionDetail.AcctDetail.Link(db.AccountDetail.LocAcct.Equals(payment.Loc_acct)),
     	).Exec(context.Background())
    		if err != nil {
         	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error inserting payment data"})
