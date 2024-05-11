@@ -53,6 +53,8 @@ func PostingPayment(c *gin.Context) {
         	db.TransactionDetail.Status.Set(payment.Status),
         	db.TransactionDetail.Desc.Set(payment.Desc),
         	db.TransactionDetail.LocAcct.Set(payment.Loc_acct),
+			// db.TransactionDetail.ReceiverPan.Set(payment.Receiver_account),
+			db.TransactionDetail.SenderPan.Set(payment.Sender_account),
     	).Exec(context.Background())
    		if err != nil {
         	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error inserting payment data"})
