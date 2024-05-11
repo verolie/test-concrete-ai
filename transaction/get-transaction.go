@@ -21,7 +21,7 @@ func GetDetailTransaction(c *gin.Context) {
 
     resp, err := client.TransactionDetail.FindMany().Exec(context.Background())
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving transactions"})
+        c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Error retrieving transactions" , err.Error())))
         return
     }
 
@@ -38,14 +38,13 @@ func GetDetailTransactionParam(c *gin.Context) {
 
 	trxId := c.Param("trx_id")
     if trxId == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Transaction ID is required"})
+        c.JSON(http.StatusBadRequest, ResponseErrorDetail(CreateErrorResp("Transaction ID is required" , "")))
         return
     }
 
 	resp, err := client.TransactionDetail.FindUnique(db.TransactionDetail.TrxID.Equals(trxId)).Exec(context.Background())
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving transaction details"})
-        return
+        c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Error retrieving transaction details" , "")))
     }
 
 	c.JSON(http.StatusOK, ResponseDataDetail(resp))

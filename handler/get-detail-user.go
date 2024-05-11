@@ -20,13 +20,13 @@ func DetaiUserAccount(c *gin.Context) {
 
 	acctNumber := c.Param("acct_num")
     if acctNumber == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Transaction ID is required"})
+        c.JSON(http.StatusBadRequest, ResponseErrorDetail(CreateErrorResp("Transaction ID is required", "")))
         return
     }
 
 	resp, err := client.AccountDetail.FindMany(db.AccountDetail.AcctNum.Equals(acctNumber)).Exec(context.Background())
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving transaction details"})
+        c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Error retrieving transaction details", "")))
         return
     }
 

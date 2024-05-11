@@ -12,9 +12,8 @@ import (
 
 func GetUsers(c *gin.Context) {
 	var loginRequest model.LoginRequest
-	resp := ""
 	if err := c.BindJSON(&loginRequest); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        c.JSON(http.StatusBadRequest, ResponseErrorDetail(CreateErrorResp("Invalid request body", err.Error())))
         return
     }
 
@@ -33,7 +32,7 @@ func GetUsers(c *gin.Context) {
 
     if err != nil {
         log.Fatalf("Error searching for users: %v", err)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Internal Server Error", err.Error())))
         return
     }
   
@@ -45,5 +44,6 @@ func GetUsers(c *gin.Context) {
         return
 	}
 
-	c.JSON(http.StatusOK, ResponseDataDetail(resp))
+
+	c.JSON(http.StatusOK, ResponseDataDetail("Success Login"))
 }

@@ -20,14 +20,14 @@ func registerServer(e *gin.Engine) {
 	//Acount Manager Service
 	e.POST("/user/login", getUser)
 	e.POST("/user/register", createUser)
-	e.POST("/user/account/detail/:id", getDetaiUserAccount)
-	e.POST("/user/payment/history/:id", getUserTrnxHist)
+	e.GET("/user/account/detail/:acct_num", getDetaiUserAccount)
+	e.GET("/user/payment/history/:loc_acct", getUserTrnxHist) //blom test
 	
 	//Transaction
 	e.POST("/transaction/send", paymentProcess)
 	e.POST("/transaction/withdraw", withdrawProcess)
 	e.GET("/transaction/detail", detailTransaction)
-	e.GET("/transaction/detail/:id", detailTransactionParam)
+	e.GET("/transaction/detail/:trx_id", detailTransactionParam)
 }
 
 func getUser(c *gin.Context) {

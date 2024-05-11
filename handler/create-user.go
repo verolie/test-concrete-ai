@@ -16,7 +16,7 @@ func CreateUser(c *gin.Context) {
 	var err error
 
 	if err := c.BindJSON(&registerRequest); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        c.JSON(http.StatusBadRequest,  ResponseErrorDetail(CreateErrorResp("Invalid request body", err.Error())))
         return
     }
 
@@ -29,21 +29,22 @@ func CreateUser(c *gin.Context) {
     defer client.Prisma.Disconnect()
 
 	status, err := CheckAccount(client , registerRequest.Acct_num)
-	if err != nil {
-       	c.JSON(http.StatusInternalServerError, gin.H{"error": "When check account" })
+	if  err != nil && err.Error() != "ErrNotFound"  {
+		println(err)
+       	c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Error when check account", err.Error())))
        	return
 	}
 
 	if (!status) {
-		_ , err = client.User.CreateOne(
+		_, err = client.User.CreateOne(
 			db.User.AcctNum.Set(registerRequest.Acct_num),
 			db.User.Name.Set(registerRequest.Name),
 			db.User.Email.Set(registerRequest.Email),
 			db.User.Password.Set(registerRequest.Password),
 			db.User.Address.Set(registerRequest.Address),
 		).Exec(context.Background())
-   		if err != nil {
-        	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error inserting payment data" })
+   		if err != nil && err.Error() != "ErrNotFound"  {
+        	c.JSON(http.StatusInternalServerError,  ResponseErrorDetail(CreateErrorResp("Error inserting User data", err.Error())))
         	return
     	}
 	}
@@ -53,16 +54,17 @@ func CreateUser(c *gin.Context) {
 		db.AccountDetail.PrinPan.Set(registerRequest.DetailAccount.Prin_pan),
 		db.AccountDetail.AcctTyp.Set(registerRequest.DetailAccount.Acct_typ),
 		db.AccountDetail.ActvTyp.Set(registerRequest.DetailAccount.Actv_typ),
-		db.AccountDetail.BlncAmt.Divide(registerRequest.DetailAccount.Blnc_amt),
-		db.AccountDetail.LoanAmt.Divide(registerRequest.DetailAccount.Loan_amt),
-		db.AccountDetail.CyccDay.Divide(registerRequest.DetailAccount.Cycc_day),
-		db.AccountDetail.MinLoanPymnt.Divide(registerRequest.DetailAccount.Min_loan_pymnt),
+		db.AccountDetail.BlncAmt.Set(registerRequest.DetailAccount.Blnc_amt),
+		db.AccountDetail.LoanAmt.Set(registerRequest.DetailAccount.Loan_amt),
+		db.AccountDetail.CyccDay.Set(registerRequest.DetailAccount.Cycc_day),
+		db.AccountDetail.MinLoanPymnt.Set(registerRequest.DetailAccount.Min_loan_pymnt),
 		db.AccountDetail.Acct.Link(
         	db.User.AcctNum.Equals(registerRequest.Acct_num),
     	),
 	).Exec(context.Background())
-   		if err != nil {
-        	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error inserting payment data" })
+
+   		if err != nil && err.Error() != "ErrNotFound"  {
+        	c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Error inserting payment data", err.Error())))
         	return
     	}
 
@@ -75,8 +77,12 @@ func CheckAccount(client *db.PrismaClient, Acctnum string) (bool, error) {
 	userAcct, err := client.User.FindUnique(
         db.User.AcctNum.Equals(Acctnum),
     ).Exec(context.Background())
-	if  userAcct == nil {
+	if err != nil && err.Error() != "ErrNotFound" {
+		println("masuk sini")
         return false, err
     }
-	return true, err
+    if userAcct == nil {
+        return false, nil // User account does not exist
+    }
+    return true, nil // User account exists
 }
