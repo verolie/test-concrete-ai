@@ -8,13 +8,17 @@ services:
     ports:
       - "8080:8080"  
     depends_on:
-      - db  
+      - postgres  
+    restart: always
 
-  db:
-    image: postgres:latest  
-    environment:
-      POSTGRES_DB: mydatabase  
-      POSTGRES_USER: oracle  
-      POSTGRES_PASSWORD: hmm123  
+  postgres:
+    image: postgres:latest
     ports:
-      - "3333:5432"  
+      - 5050:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=S3cret
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=payment_db
+    restart: always
