@@ -17,15 +17,19 @@ func RunServer() {
 }
 
 func registerServer(e *gin.Engine) {
-	//Acount Manager Service
+	// Account Manager Service
 	e.POST("/user/login", getUser)
 	e.POST("/user/register", createUser)
 	e.GET("/user/account/detail/:acct_num", getDetaiUserAccount)
 	e.GET("/user/payment/history/:loc_acct", getUserTrnxHist)
-	
-	//Transaction
-	e.POST("/transaction/send", paymentProcess)
-	e.POST("/transaction/withdraw", withdrawProcess)
+
+	// Transaction
+	transactionGroup := e.Group("/transaction")
+	transactionGroup.Use(authMiddleware())
+	{
+		transactionGroup.POST("/send", paymentProcess)
+		transactionGroup.POST("/withdraw", withdrawProcess)
+	}
 	e.GET("/transaction/detail", detailTransaction)
 	e.GET("/transaction/detail/:trx_id", detailTransactionParam)
 }

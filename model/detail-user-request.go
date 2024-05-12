@@ -1,5 +1,9 @@
 package model
 
+import (
+	_ "github.com/shopspring/decimal"
+)
+
 type User struct {
 	Acct_num      string `json:"acct_num"`
 	Name          string `json:"name"`

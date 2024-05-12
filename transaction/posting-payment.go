@@ -22,8 +22,14 @@ func PostingPayment(c *gin.Context) {
 	var err error
 	status = "Success"
 
+	email, exists := c.Get("email")
+	if !exists {
+         c.JSON(http.StatusBadRequest, ResponseErrorDetail(CreateErrorResp("Email null", err.Error())))
+        return
+    }
+
 	if err = c.BindJSON(&payment); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        c.JSON(http.StatusBadRequest, ResponseErrorDetail(CreateErrorResp("Invalid request body", err.Error())))
         return
     }
 
@@ -34,6 +40,14 @@ func PostingPayment(c *gin.Context) {
     }
     defer client.Prisma.Disconnect()
 
+	user, err := client.User.FindUnique(
+        db.User.Email.Equals(email.(string)),
+    ).Exec(context.Background())
+	if  ((err != nil && err.Error() != "ErrNotFound") || user == nil) {
+		c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Email Not Match" , err.Error())))
+        return 
+    }
+	
 	if(CheckAccount(client, payment.Loc_acct)){
 		//try to update account
 		if (actvTyp != "W") {
@@ -78,6 +92,8 @@ func CheckAccount(client *db.PrismaClient, Loc_acct string) bool {
 	if  ((err != nil && err.Error() != "ErrNotFound") || accountDetail == nil) {
         return false
     }
+	
+
 		acctTyp = accountDetail.AcctTyp
 		actvTyp = accountDetail.ActvTyp
 		blncAmt = accountDetail.BlncAmt

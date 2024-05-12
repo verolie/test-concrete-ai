@@ -20,13 +20,13 @@ func UserTrnxHist(c *gin.Context) {
 
 	locAcct := c.Param("loc_acct")
     if locAcct == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Transaction ID is required"})
+        c.JSON(http.StatusBadRequest, ResponseErrorDetail(CreateErrorResp("Transaction ID is required", "")))
         return
     }
 
 	resp, err := client.TransactionDetail.FindMany(db.TransactionDetail.LocAcct.Equals(locAcct)).Exec(context.Background())
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving transaction details"})
+        c.JSON(http.StatusInternalServerError,  ResponseErrorDetail(CreateErrorResp("Error retrieving transaction details", err.Error())))
         return
     }
 

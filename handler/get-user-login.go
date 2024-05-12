@@ -4,10 +4,12 @@ import (
 	"context"
 	"example/transaction/model"
 	"example/transaction/prisma/db"
+	"example/transaction/utils/token"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func GetUsers(c *gin.Context) {
@@ -25,9 +27,8 @@ func GetUsers(c *gin.Context) {
 
     defer client.Prisma.Disconnect()
 	
-	users, err := client.User.FindMany(
+	users, err := client.User.FindFirst(
         db.User.Email.Equals(loginRequest.Email),
-        db.User.Password.Equals(loginRequest.Password),
     ).Exec(context.Background())
 
     if err != nil {
@@ -35,15 +36,30 @@ func GetUsers(c *gin.Context) {
         c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Internal Server Error", err.Error())))
         return
     }
-  
-    if (len(users) == 0) {
+
+    if (users == nil) {
         c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
         return
-    } else if (len(users) > 1){
-		c.JSON(http.StatusNotFound, gin.H{"error": "More than 1 account"})
+    }
+
+    err = VerifyPassword(loginRequest.Password, users.Password)
+
+    if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Mismatch Hash Password", err.Error())))
         return
 	}
+  
+    token,err := token.GenerateToken(users.Email)
+
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Failed Generate Token", err.Error())))
+		return 
+	}
+
+	c.JSON(http.StatusOK, ResponseDataDetail(token))
+}
 
 
-	c.JSON(http.StatusOK, ResponseDataDetail("Success Login"))
+func VerifyPassword(password,hashedPassword string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

@@ -9,6 +9,7 @@ import (
 	"example/transaction/prisma/db"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func CreateUser(c *gin.Context) {
@@ -36,6 +37,16 @@ func CreateUser(c *gin.Context) {
 	}
 
 	if (!status) {
+		hashPass, err := bcrypt.GenerateFromPassword([]byte(registerRequest.Password),bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("error when hash password", err.Error())))
+			return
+		}
+
+		registerRequest.Password = string(hashPass)
+
+		print(registerRequest.Password)
+
 		_, err = client.User.CreateOne(
 			db.User.AcctNum.Set(registerRequest.Acct_num),
 			db.User.Name.Set(registerRequest.Name),
