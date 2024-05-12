@@ -11,23 +11,23 @@ generator client {
 model User {
   acct_num      String @id @unique @db.VarChar(15)
   name          String @db.VarChar(20)
-  email         String @db.VarChar(30)
+  email         String @db.VarChar(30) @unique
   password      String @db.VarChar(20)
   address       String @db.VarChar(100)
   acctDetail    AccountDetail[]
 }
 
 model AccountDetail {
-  loc_acct       String @id @unique @db.VarChar(15)
-  prin_pan       String @db.VarChar(50)
-  acct_typ       String @db.VarChar(2)
-  actv_typ       String @db.VarChar(1)
-  blnc_amt       Float  @db.DoublePrecision
-  loan_amt       Float  @db.DoublePrecision
+  loc_acct       String   @id @unique @db.VarChar(15)
+  prin_pan       String   @db.VarChar(50) @unique
+  acct_typ       String   @db.VarChar(2)
+  actv_typ       String   @db.VarChar(1)
+  blnc_amt       Decimal  @db.Decimal(20, 2)
+  loan_amt       Decimal  @db.Decimal(20, 2)
   cycc_day       Int
-  min_loan_pymnt Float  @db.DoublePrecision
-  acct_num       String @db.VarChar(15)
-  acct           User    @relation(fields: [acct_num], references: [acct_num])
+  min_loan_pymnt Decimal  @db.Decimal(20, 2)
+  acct_num       String   @db.VarChar(15)
+  acct           User     @relation(fields: [acct_num], references: [acct_num])
   trxDetail      TransactionDetail[]
 }
 
@@ -38,7 +38,7 @@ model TransactionDetail {
   sender_pan     String    @db.VarChar(50)
   apv_code       String    @db.VarChar(10)
   trx_typ        String    @db.VarChar(2)
-  amt            Float     @db.DoublePrecision
+  amt            Decimal   @db.Decimal(20, 2)
   status         String    @db.VarChar(1)
   desc           String    @db.VarChar(100)
   loc_acct       String    @db.VarChar(15)

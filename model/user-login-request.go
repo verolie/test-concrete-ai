@@ -1,6 +1,6 @@
 package model
 
 type LoginRequest struct {
-	Acct_Num string `json:"acct_num"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }

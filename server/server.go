@@ -21,7 +21,7 @@ func registerServer(e *gin.Engine) {
 	e.POST("/user/login", getUser)
 	e.POST("/user/register", createUser)
 	e.GET("/user/account/detail/:acct_num", getDetaiUserAccount)
-	e.GET("/user/payment/history/:loc_acct", getUserTrnxHist) //blom test
+	e.GET("/user/payment/history/:loc_acct", getUserTrnxHist)
 	
 	//Transaction
 	e.POST("/transaction/send", paymentProcess)

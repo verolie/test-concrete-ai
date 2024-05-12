@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  gateway_db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: pass123
+      POSTGRES_DB: paymentdb
+    ports:
+      - "4444:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

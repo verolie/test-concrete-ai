@@ -26,7 +26,7 @@ func GetUsers(c *gin.Context) {
     defer client.Prisma.Disconnect()
 	
 	users, err := client.User.FindMany(
-        db.User.AcctNum.Equals(loginRequest.Acct_Num),
+        db.User.Email.Equals(loginRequest.Email),
         db.User.Password.Equals(loginRequest.Password),
     ).Exec(context.Background())
 
