@@ -31,7 +31,7 @@ func GetUsers(c *gin.Context) {
         db.User.Email.Equals(loginRequest.Email),
     ).Exec(context.Background())
 
-    if err != nil {
+    if err != nil &&  err.Error() != "ErrNotFound" {
         log.Fatalf("Error searching for users: %v", err)
         c.JSON(http.StatusInternalServerError, ResponseErrorDetail(CreateErrorResp("Internal Server Error", err.Error())))
         return
