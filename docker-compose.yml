@@ -1,17 +1,20 @@
 version: '3.8'
 
 services:
-  gateway_db:
-    image: postgres:latest
-    restart: always
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: pass123
-      POSTGRES_DB: paymentdb
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile  
     ports:
-      - "4444:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+      - "8080:8080"  
+    depends_on:
+      - db  
 
-volumes:
-  db_data:
+  db:
+    image: postgres:latest  
+    environment:
+      POSTGRES_DB: mydatabase  
+      POSTGRES_USER: oracle  
+      POSTGRES_PASSWORD: hmm123  
+    ports:
+      - "3333:5432"  
